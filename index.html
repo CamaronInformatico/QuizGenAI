@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizGenAI - Kahoot Style</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header id="global-header" class="hidden">
+        <div class="header-left">
+            <button class="profile-toggle-btn" onclick="showScreen('profile-screen')">👤 Configurar Perfil</button>
+        </div>
+        <div class="header-right">
+            <span class="brand-name">QuizGenAI</span>
+        </div>
+    </header>
+
+    <div id="auth-screen" class="screen active auth-bg">
+        <div class="auth-card">
+            <h1 class="auth-logo">QuizGenAI</h1>
+            <h2>Iniciar Sesión</h2>
+            <input type="text" id="username" placeholder="Nombre de usuario o Email">
+            <input type="password" id="password" placeholder="Contraseña">
+            
+            <button class="kahoot-btn btn-purple" onclick="login()">Entrar</button>
+            
+            <p class="auth-switch">
+                ¿No tienes cuenta? <a href="#" onclick="showScreen('register-screen')">Regístrate aquí</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="register-screen" class="screen auth-bg">
+        <div class="auth-card">
+            <h1 class="auth-logo">QuizGenAI</h1>
+            <h2>Crear Cuenta</h2>
+            <input type="text" id="reg-username" placeholder="Crea tu nombre de usuario">
+            <input type="password" id="reg-password" placeholder="Crea tu contraseña">
+            
+            <button class="kahoot-btn btn-green" onclick="registrarCuenta()">Registrarse</button>
+            
+            <p class="auth-switch">
+                ¿Ya tienes cuenta? <a href="#" onclick="showScreen('auth-screen')">Inicia sesión aquí</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="main-menu" class="screen vertical-layout">
+        <div class="menu-container">
+            
+            <div class="creation-zone">
+                <h2>¿Qué vas a jugar hoy?</h2>
+                <div class="action-grid">
+                    <button class="kahoot-btn btn-blue" onclick="abrirCreadorAI()">
+                        <span class="icon">✨</span> Crear con AI
+                    </button>
+                    <button class="kahoot-btn btn-green" onclick="showScreen('manual-quiz-screen')">
+                        <span class="icon">➕</span> Crear desde Cero
+                    </button>
+                </div>
+            </div>
+
+            <div class="quizzes-section">
+                <h3>Mis Cuestionarios</h3>
+                <div id="user-quizzes-container" class="quiz-grid">
+                    </div>
+            </div>
+
+            <div class="quizzes-section institutional-quizzes">
+                <h3>Cuestionarios de Especialidad</h3>
+                <div id="career-quizzes-container" class="quiz-grid">
+                    </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="ai-creator-screen" class="screen central-layout">
+        <div class="kahoot-card">
+            <h2>Crear con IA Asistida</h2>
+            <p>Sigue estos pasos para generar tu quiz gratis usando la IA de Google:</p>
+            
+            <ol class="instructions-list">
+                <li>Haz clic en el botón de abajo para abrir Gemini.</li>
+                <li>Sube tus documentos o texto en gemini,Si no tienes uno, puedes usar el texto de ejemplo para generar tu cuestionario acerca de tu tema que gustes.</li>
+                <li>Copia este comando exacto y pégaselo a Gemini:
+                    <div class="code-box">
+                        "Genera un cuestionario de 3 preguntas basado en mi documento. Devuélvemelo estrictamente en este formato de texto: 
+                        Título: [Título del quiz]
+                        P1: [Pregunta] | A: [Op] | B: [Op] | C: [Op] | D: [Op] | Correcta: [A, B, C o D]"
+                    </div>
+                </li>
+                <li>Cuando Gemini te responda, copia la respuesta desde el titulo y pégala aquí abajo:</li>
+            </ol>
+
+            <button class="kahoot-btn btn-purple" onclick="linkToGemini()">1. Abrir Ventana de Gemini ↗</button>
+            <textarea id="gemini-raw-input" placeholder="Pega aquí el resultado completo que te dio Gemini..."></textarea>
+            
+            <div class="action-group-row">
+                <button class="kahoot-btn btn-green" onclick="procesarTextoGemini()">2. Generar Cuestionario</button>
+                <button class="kahoot-btn btn-red" onclick="showScreen('main-menu')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="manual-quiz-screen" class="screen central-layout">
+        <div class="kahoot-card scrollable">
+            <h2>Crear Cuestionario Manual</h2>
+            <input type="text" id="manual-quiz-title" placeholder="Escribe el título de tu cuestionario...">
+            
+            <div id="questions-container">
+                <div class="question-box-card">
+                    <input type="text" class="q-text" placeholder="Pregunta">
+                    <div class="options-grid">
+                        <input type="text" class="q-opA" placeholder="Opción A">
+                        <input type="text" class="q-opB" placeholder="Opción B">
+                        <input type="text" class="q-opC" placeholder="Opción C">
+                        <input type="text" class="q-opD" placeholder="Opción D">
+                    </div>
+                    <select class="q-correcta">
+                        <option value="">-- Selecciona la respuesta correcta --</option>
+                        <option value="A">Opción A</option>
+                        <option value="B">Opción B</option>
+                        <option value="C">Opción C</option>
+                        <option value="D">Opción D</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="kahoot-btn btn-purple short" onclick="addManualQuestion()">＋ Añadir Pregunta</button>
+            <div class="action-group-row">
+                <button class="kahoot-btn btn-green" onclick="guardarCuestionarioManual()">Guardar Quiz</button>
+                <button class="kahoot-btn btn-red" onclick="showScreen('main-menu')">Volver al menú</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-screen" class="screen central-layout">
+        <div class="kahoot-card">
+            <h2>Configuración del Perfil</h2>
+            
+            <label>Nombre de Usuario:</label>
+            <input type="text" id="profile-username" placeholder="Tu nombre de usuario">
+            
+            <label>Descripción Personal:</label>
+            <textarea id="profile-description" placeholder="Cuéntanos un poco sobre ti..."></textarea>
+            
+            <div class="action-group-vertical">
+                <button class="kahoot-btn btn-green" onclick="guardarPerfil()">Guardar Cambios</button>
+                <button class="kahoot-btn btn-blue" onclick="showScreen('main-menu')">Regresar al Menú</button>
+                <button class="kahoot-btn btn-red" onclick="logout()">Cerrar Sesión 🚪</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-play-screen" class="screen gameplay-layout">
+        <div class="game-header">
+            <h2 id="game-question-text">¿Cargando Pregunta?</h2>
+            <span id="game-progress">Pregunta 0 de 0</span>
+        </div>
+        <div id="game-options-container" class="game-buttons-grid">
+            </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
